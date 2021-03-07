@@ -48,15 +48,27 @@ const weatherSchema = new Schema({
   visibility: Number,
   wind: { speed: Number, deg: Number },
   description: String,
-  date: { type: Date, default: Date.now },
+  date: { type: Number, default: Date.now },
 });
 //makes new model
 
-const weatherData = mongoose.model("weatherdata", weatherSchema);
+const weatherdata = mongoose.model("weatherdata", weatherSchema);
 
-function checkupdate() {
-  return true;
+async function checkupdate() {
+  await weatherdata.find({}, (err, weatherdata) => {
+    if (err) console.log(err);
+    else {
+      const checker = Date.now() + 10 * 60 * 1000;
+      if (checker > weatherdata[0].date) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  });
 }
+const myitm = checkupdate();
+console.log("mydata", myitm);
 //updateweatherData
 function updateWeather(a, b, c) {
   return new Promise(async (resolve, reject) => {
@@ -72,8 +84,21 @@ function updateWeather(a, b, c) {
           `${c}`
       );
       const data = await result.json();
-      resolve(data);
+
       //write to mongodb here
+      const newPost = new weatherdata({
+        temp: data.main.temp,
+        feels_like: data.main.temp,
+        temp_min: data.main.temp_min,
+        temp_max: data.main.temp_max,
+        humidity: data.main.humidity,
+        visibility: data.visibility,
+        wind: { speed: data.wind.speed, deg: data.wind.deg },
+        description: data.weather[0].description,
+        date: Date.now(),
+      });
+      newPost.save().then("Weather Data Updated");
+      resolve(data);
     } catch (err) {
       reject(new Error(err.message));
     }
@@ -91,8 +116,8 @@ app.get("/all", (req, res) => {
 app.get("/weather", async (req, res) => {
   try {
     weatherData = await updateWeather("Helsinki", "metric", "en");
-    console.log("This is weather", weatherData);
-    res.send(weatherData);
+    console.log("This is weather", weatherdata);
+    res.send(weatherdata);
   } catch (err) {
     res.send(err);
   }
