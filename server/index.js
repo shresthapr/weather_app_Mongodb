@@ -53,9 +53,8 @@ const weatherSchema = new Schema({
 //makes new model
 
 const weatherdata = mongoose.model("weatherdata", weatherSchema);
-
-async function checkupdate() {
-  await weatherdata.find({}, (err, weatherdata) => {
+const checker = async () => {
+  weatherdata.find({}, (err, weatherdata) => {
     if (err) console.log(err);
     else {
       const checker = Date.now() + 10 * 60 * 1000;
@@ -66,9 +65,13 @@ async function checkupdate() {
       }
     }
   });
+};
+
+async function checkupdate() {
+  await checker().then(console.log);
 }
-const myitm = checkupdate();
-console.log("mydata", myitm);
+
+const test = console.log(checkupdate());
 //updateweatherData
 function updateWeather(a, b, c) {
   return new Promise(async (resolve, reject) => {
