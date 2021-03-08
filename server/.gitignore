@@ -1,1 +1,4 @@
 .env
+../datelibrary.js
+../data.js
+./datelibrary.js
